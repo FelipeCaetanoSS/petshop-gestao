@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+petshop.db
+*.db
+.claude/
