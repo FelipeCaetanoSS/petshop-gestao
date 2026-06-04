@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ "Editar Pet" if pet else "Novo Pet" }}</h1>
+
+<form method="POST">
+    <div class="mb-3">
+        <label for="nome" class="form-label">Nome *</label>
+        <input type="text" class="form-control" id="nome" name="nome"
+            value="{{ pet.nome if pet else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="especie" class="form-label">Espécie *</label>
+        <select class="form-select" id="especie" name="especie" required>
+            <option value="">Selecione...</option>
+            <option value="cão" {{ "selected" if pet and pet.especie == 'cão' else "" }}>Cão</option>
+            <option value="gato" {{ "selected" if pet and pet.especie == 'gato' else "" }}>Gato</option>
+            <option value="outro" {{ "selected" if pet and pet.especie == 'outro' else "" }}>Outro</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="raca" class="form-label">Raça</label>
+        <input type="text" class="form-control" id="raca" name="raca"
+            value="{{ pet.raca if pet else '' }}">
+    </div>
+    <div class="mb-3">
+        <label for="idade" class="form-label">Idade</label>
+        <input type="number" class="form-control" id="idade" name="idade" min="0"
+            value="{{ pet.idade if pet else '' }}">
+    </div>
+    <div class="mb-3">
+        <label for="tutor_id" class="form-label">Tutor *</label>
+        <select class="form-select" id="tutor_id" name="tutor_id" required>
+            <option value="">Selecione...</option>
+            {% for tutor in tutores %}
+            <option value="{{ tutor.id }}" {{ "selected" if pet and pet.tutor_id == tutor.id else "" }}>
+                {{ tutor.nome }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url_for('pets.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
