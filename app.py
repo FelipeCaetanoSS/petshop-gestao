@@ -1,7 +1,6 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -9,6 +8,8 @@ def create_app():
     app.config["SECRET_KEY"] = "petshop-secret-key"
 
     db.init_app(app)
+
+    from models import Tutor, Pet, Agendamento
 
     from controllers.tutores_controller import tutores_bp
     from controllers.pets_controller import pets_bp
@@ -24,6 +25,7 @@ def create_app():
 
     return app
 
+
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)

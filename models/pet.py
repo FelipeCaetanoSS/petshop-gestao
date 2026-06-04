@@ -1,4 +1,5 @@
-from app import db
+from extensions import db
+
 
 class Pet(db.Model):
     __tablename__ = "pets"

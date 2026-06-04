@@ -1,4 +1,3 @@
 from flask import Blueprint
 
-pets_bp = Blueprint("pets", __name__, url_prefix="/pets",
-                     template_folder="../templates")
+pets_bp = Blueprint("pets", __name__, url_prefix="/pets")

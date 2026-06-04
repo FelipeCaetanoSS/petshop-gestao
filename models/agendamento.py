@@ -1,7 +1,8 @@
-from app import db
+from extensions import db
 
 SERVICOS = ["banho", "tosa", "hospedagem", "consulta"]
 STATUS_AGENDAMENTO = ["agendado", "concluido", "cancelado"]
+
 
 class Agendamento(db.Model):
     __tablename__ = "agendamentos"
