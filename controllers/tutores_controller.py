@@ -5,6 +5,7 @@ from models.tutor import Tutor
 tutores_bp = Blueprint("tutores", __name__, url_prefix="/tutores")
 
 
+@tutores_bp.route("")
 @tutores_bp.route("/")
 def listar():
     tutores = Tutor.query.order_by(Tutor.nome).all()
