@@ -1,26 +1,66 @@
+import os
 import re
 from flask import Flask, render_template, request, url_for
 from extensions import db
 
 
 class PreviewMiddleware:
-    """Define SCRIPT_NAME com o prefixo /preview/<id> para que o Flask
-    use url_for() corretamente, gerando URLs completas como:
-    /preview/RzFmaIyQZGSpSUQxYBnpc/tutores
+    """Configura SCRIPT_NAME com o prefixo dinâmico da plataforma.
+
+    Funciona em 3 cenários:
+    1. URL já vem com /preview/<id> no PATH_INFO (local/dev)
+    2. Plataforma envia X-Forwarded-Prefix (proxy reverso)
+    3. Plataforma envia SCRIPT_NAME no environ WSGI
     """
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO', '')
-        match = re.match(r'^(/preview/[A-Za-z0-9_-]+)(/.*)?$', path)
+        path_info = environ.get('PATH_INFO', '')
+        script_name = environ.get('SCRIPT_NAME', '')
 
+        # 1. Se a plataforma ja definiu SCRIPT_NAME, confia nela
+        if script_name:
+            if path_info.startswith(script_name):
+                environ['PATH_INFO'] = path_info[len(script_name):]
+            return self.app(environ, start_response)
+
+        # 2. X-Forwarded-Prefix (proxy reverso tipo nginx)
+        forwarded_prefix = environ.get('HTTP_X_FORWARDED_PREFIX', '')
+        if forwarded_prefix:
+            fp = forwarded_prefix.rstrip('/')
+            environ['SCRIPT_NAME'] = environ.get('SCRIPT_NAME', '') + fp
+            if path_info.startswith(fp):
+                environ['PATH_INFO'] = path_info[len(fp):]
+            return self.app(environ, start_response)
+
+        # 3. Deteccao automatica: URL com /preview/<id> no path
+        match = re.match(r'^(/preview/[A-Za-z0-9_-]+)(/.*)?$', path_info)
         if match:
-            script_name = match.group(1)
-            path_info = match.group(2) or '/'
-            environ['SCRIPT_NAME'] = environ.get('SCRIPT_NAME', '') + script_name
-            environ['PATH_INFO'] = path_info
+            environ['SCRIPT_NAME'] = script_name + match.group(1)
+            environ['PATH_INFO'] = match.group(2) or '/'
 
+        return self.app(environ, start_response)
+
+
+class DebugMiddleware:
+    """Loga o ambiente WSGI para depurar o que chega na Avelum.
+    Remova depois de identificar o problema."""
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        import sys
+        items = dict(
+            PATH_INFO=environ.get("PATH_INFO", ""),
+            SCRIPT_NAME=environ.get("SCRIPT_NAME", ""),
+            HTTP_X_FORWARDED_PREFIX=environ.get("HTTP_X_FORWARDED_PREFIX", ""),
+            HTTP_X_FORWARDED_HOST=environ.get("HTTP_X_FORWARDED_HOST", ""),
+            HTTP_HOST=environ.get("HTTP_HOST", ""),
+            REQUEST_URI=environ.get("REQUEST_URI", ""),
+            RAW_URI=environ.get("RAW_URI", ""),
+        )
+        print(f"[DEBUG] {items}", file=sys.stderr)
         return self.app(environ, start_response)
 
 
@@ -29,7 +69,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///petshop.db"
     app.config["SECRET_KEY"] = "petshop-secret-key"
 
-    app.wsgi_app = PreviewMiddleware(app.wsgi_app)
+    app.wsgi_app = PreviewMiddleware(DebugMiddleware(app.wsgi_app))
 
     db.init_app(app)
 
