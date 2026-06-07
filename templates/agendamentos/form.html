@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ "Editar Agendamento" if agendamento else "Novo Agendamento" }}</h1>
+
+<form method="POST" action="{{ url('agendamentos.criar') if not agendamento else url('agendamentos.editar', id=agendamento.id) }}">
+    <div class="mb-3">
+        <label for="pet_id" class="form-label">Pet *</label>
+        <select class="form-select" id="pet_id" name="pet_id" required>
+            <option value="">Selecione...</option>
+            {% for pet in pets %}
+            <option value="{{ pet.id }}" {{ "selected" if agendamento and agendamento.pet_id == pet.id else "" }}>
+                {{ pet.nome }} ({{ pet.tutor.nome }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="servico" class="form-label">Serviço *</label>
+        <select class="form-select" id="servico" name="servico" required>
+            <option value="">Selecione...</option>
+            {% for servico in servicos %}
+            <option value="{{ servico }}" {{ "selected" if agendamento and agendamento.servico == servico else "" }}>
+                {{ servico }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="data" class="form-label">Data *</label>
+        <input type="date" class="form-control" id="data" name="data"
+            value="{{ agendamento.data if agendamento else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="hora" class="form-label">Hora *</label>
+        <input type="time" class="form-control" id="hora" name="hora"
+            value="{{ agendamento.hora if agendamento else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status">
+            {% for st in status_list %}
+            <option value="{{ st }}" {{ "selected" if agendamento and agendamento.status == st else "" }}>
+                {{ st }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url('agendamentos.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

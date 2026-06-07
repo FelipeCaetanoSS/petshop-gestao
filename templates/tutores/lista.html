@@ -2,7 +2,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Tutores</h1>
-    <a href="{{ url_for('tutores.criar') }}" class="btn btn-primary">Novo Tutor</a>
+    <a href="{{ url('tutores.criar') }}" class="btn btn-primary">Novo Tutor</a>
 </div>
 
 {% if tutores %}
@@ -24,11 +24,10 @@
             <td>{{ tutor.email or "-" }}</td>
             <td>{{ tutor.pets|length }}</td>
             <td>
-                <a href="{{ url_for('tutores.editar', id=tutor.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                <form action="{{ url_for('tutores.excluir', id=tutor.id) }}" method="POST" style="display:inline">
-                    <button type="submit" class="btn btn-sm btn-danger"
-                        onclick="return confirm('Tem certeza que deseja excluir {{ tutor.nome }}?')">Excluir</button>
-                </form>
+                <a href="{{ url('tutores.editar', id=tutor.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                <a href="{{ url('tutores.excluir', id=tutor.id) }}"
+                    class="btn btn-sm btn-danger"
+                    onclick="return confirm('Tem certeza que deseja excluir {{ tutor.nome }}?')">Excluir</a>
             </td>
         </tr>
         {% endfor %}

@@ -89,7 +89,7 @@ def editar(id):
     return render_template("pets/form.html", pet=pet, tutores=tutores)
 
 
-@pets_bp.route("/<int:id>/excluir", methods=["POST"])
+@pets_bp.route("/<int:id>/excluir", methods=["GET", "POST"])
 def excluir(id):
     pet = Pet.query.get_or_404(id)
 

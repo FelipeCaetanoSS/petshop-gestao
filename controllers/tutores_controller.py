@@ -53,7 +53,7 @@ def editar(id):
     return render_template("tutores/form.html", tutor=tutor)
 
 
-@tutores_bp.route("/<int:id>/excluir", methods=["POST"])
+@tutores_bp.route("/<int:id>/excluir", methods=["GET", "POST"])
 def excluir(id):
     tutor = Tutor.query.get_or_404(id)
 
